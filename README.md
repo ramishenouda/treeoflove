@@ -47,15 +47,28 @@ git pull && ./deploy.sh
 
 `deploy.sh` checks `.env`, builds the image, starts Postgres and the site with `docker-compose.prod.yml`, and waits until `/api/health` answers. Database migrations in `src/migrations` run automatically when the site starts. Uploaded images and the database live in Docker volumes, so they survive redeploys.
 
-The site listens on `127.0.0.1:${APP_PORT}`. Put a reverse proxy with HTTPS in front of it, for example Caddy:
+The site listens on `127.0.0.1:${APP_PORT}`. nginx in front of it handles HTTPS, redirects `treeoflove.life` to `www.treeoflove.life`, adds security headers, and rate-limits logins and form posts. The config is in `nginx/treeoflove.life.conf`; its upstream port must match `APP_PORT`. Once DNS for both names points at the server:
 
-```
-your-domain.org {
-  reverse_proxy 127.0.0.1:3000
-}
+```bash
+certbot certonly --webroot -w /var/www/certbot \
+  -d www.treeoflove.life -d treeoflove.life \
+  --deploy-hook "systemctl reload nginx"
+cp nginx/treeoflove.life.conf /etc/nginx/sites-available/treeoflove.life
+nginx -t && systemctl reload nginx
 ```
 
-After the first deploy, open `https://your-domain.org/admin` to create the first staff user. In Stripe, add a live webhook to `https://your-domain.org/api/stripe/webhook`.
+nginx blocks Payload's "create first user" page and endpoint from the internet, so create the first staff user from the server:
+
+```bash
+read -rp 'Email: ' EMAIL; read -rsp 'Password: ' PASSWORD; echo
+jq -n --arg email "$EMAIL" --arg password "$PASSWORD" '{email: $email, password: $password}' |
+  curl -fsS -X POST http://127.0.0.1:3020/api/users/first-register \
+    -H 'Content-Type: application/json' --data-binary @- >/dev/null && echo created
+```
+
+In Stripe, add a live webhook to `https://www.treeoflove.life/api/stripe/webhook`.
+
+Do not run the development `docker-compose.yml` on the server: it publishes Postgres and Adminer on every network interface with default passwords.
 
 Database browser on the server: `docker compose -f docker-compose.prod.yml --profile tools up -d adminer`, then `ssh -L 8080:127.0.0.1:8080 you@server` and open `http://localhost:8080` (Server: **postgres**, credentials from `.env`).
 

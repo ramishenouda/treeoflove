@@ -13,22 +13,34 @@ fail() {
 
 [ -f .env ] || fail "create .env first (cp .env.example .env) and fill it in."
 docker compose version >/dev/null 2>&1 || fail "Docker with the compose plugin is required."
+chmod 600 .env
 
-set -a
-# shellcheck disable=SC1091
-. ./.env
-set +a
+# Read values the way docker compose does, without running .env as a shell script
+# (values such as `Tree of Love <hello@…>` are not valid shell).
+env_value() {
+  local line
+  line="$(grep -E "^[[:space:]]*$1=" .env | tail -n 1)" || true
+  line="${line#*=}"
+  line="${line%$'\r'}"
+  case "$line" in
+    \"*\" | \'*\') line="${line:1:${#line}-2}" ;;
+  esac
+  printf '%s' "$line"
+}
 
 for name in SITE_URL PAYLOAD_SECRET POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB; do
-  value="${!name:-}"
+  value="$(env_value "$name")"
   [ -n "$value" ] || fail "$name is empty in .env."
   case "$value" in
     replace-with-*) fail "$name still has the example value in .env." ;;
   esac
 done
 
-[[ "$POSTGRES_PASSWORD" =~ ^[A-Za-z0-9_-]+$ ]] ||
+[[ "$(env_value POSTGRES_PASSWORD)" =~ ^[A-Za-z0-9_-]+$ ]] ||
   fail "POSTGRES_PASSWORD can only use letters, digits, - and _ (it goes into a connection URL)."
+
+SITE_URL="$(env_value SITE_URL)"
+APP_PORT="$(env_value APP_PORT)"
 
 echo "Building and starting containers…"
 "${COMPOSE[@]}" up -d --build --remove-orphans

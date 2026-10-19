@@ -19,12 +19,15 @@ import { About } from './globals/About'
 import { Home } from './globals/Home'
 import { Privacy } from './globals/Privacy'
 import { SiteSettings } from './globals/SiteSettings'
+import { siteUrl } from './lib/site'
 import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  serverURL: siteUrl(),
+  csrf: [siteUrl()],
   admin: {
     user: Users.slug,
     importMap: {
