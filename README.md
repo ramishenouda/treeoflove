@@ -57,14 +57,7 @@ cp nginx/treeoflove.life.conf /etc/nginx/sites-available/treeoflove.life
 nginx -t && systemctl reload nginx
 ```
 
-nginx blocks Payload's "create first user" page and endpoint from the internet, so create the first staff user from the server:
-
-```bash
-read -rp 'Email: ' EMAIL; read -rsp 'Password: ' PASSWORD; echo
-jq -n --arg email "$EMAIL" --arg password "$PASSWORD" '{email: $email, password: $password}' |
-  curl -fsS -X POST http://127.0.0.1:3020/api/users/first-register \
-    -H 'Content-Type: application/json' --data-binary @- >/dev/null && echo created
-```
+Open `https://www.treeoflove.life/admin` and create the first staff user. Payload only allows that signup while the users table is empty, so do it before leaving the site public.
 
 In Stripe, add a live webhook to `https://www.treeoflove.life/api/stripe/webhook`.
 
