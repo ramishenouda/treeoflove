@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js
+.next/
+out/
+
+# Build
+build/
+dist/
+
+# Environment (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+
+# Uploads (Payload media on disk)
+/media
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs and debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Test and Playwright
+coverage/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# IDE and OS
+.DS_Store
+Thumbs.db
+.idea/*
+!.idea/runConfigurations
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Vercel / deploy
+.vercel
+
+# Secrets and keys
+*.pem
+*.key
+
+# Local tooling
+.turbo
+.eslintcache
+.prettiercache
