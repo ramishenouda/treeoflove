@@ -1,7 +1,7 @@
 export const PAGE_SIZE = 12
 
 export function siteUrl() {
-  const value = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const value = process.env.SITE_URL || 'http://localhost:3000'
   return value.replace(/\/$/, '')
 }
 

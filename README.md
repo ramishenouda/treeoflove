@@ -5,12 +5,14 @@ Next.js site with Payload CMS. Staff sign in at `/admin`.
 ## Local setup
 
 1. Copy `.env.example` to `.env` and set `PAYLOAD_SECRET` to a long random string.
-2. Start Postgres: `docker compose up -d`
+2. Start Postgres (and Adminer): `docker compose up -d`
 3. Install and run: `npm install` then `npm run dev`
 4. Open `http://localhost:3000` and create the first staff user at `http://localhost:3000/admin`
 5. Load sample pages, programs, and children: `npm run seed`
 
 `DATABASE_URL` in `.env.example` matches the local Docker database.
+
+Browse tables in the browser at `http://localhost:8080` (Adminer — like phpMyAdmin for Postgres). System: **PostgreSQL**, Server: **postgres**, Username/Password: **postgres**, Database: **treeoflove**.
 
 ## Donations and contact email
 
@@ -23,3 +25,44 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 
 Contact messages are saved in the admin. Set `RESEND_API_KEY` and `RESEND_FROM` to email them to the notification address in site settings. Until those are set, the message is still saved.
+
+## Deploying to a server
+
+The server needs Git and Docker with the compose plugin.
+
+First time:
+
+```bash
+git clone <repo-url> treeoflove && cd treeoflove
+cp .env.example .env
+nano .env        # set SITE_URL (https://your-domain), PAYLOAD_SECRET, POSTGRES_PASSWORD, Stripe and Resend keys
+./deploy.sh
+```
+
+Each update:
+
+```bash
+git pull && ./deploy.sh
+```
+
+`deploy.sh` checks `.env`, builds the image, starts Postgres and the site with `docker-compose.prod.yml`, and waits until `/api/health` answers. Database migrations in `src/migrations` run automatically when the site starts. Uploaded images and the database live in Docker volumes, so they survive redeploys.
+
+The site listens on `127.0.0.1:${APP_PORT}`. Put a reverse proxy with HTTPS in front of it, for example Caddy:
+
+```
+your-domain.org {
+  reverse_proxy 127.0.0.1:3000
+}
+```
+
+After the first deploy, open `https://your-domain.org/admin` to create the first staff user. In Stripe, add a live webhook to `https://your-domain.org/api/stripe/webhook`.
+
+Database browser on the server: `docker compose -f docker-compose.prod.yml --profile tools up -d adminer`, then `ssh -L 8080:127.0.0.1:8080 you@server` and open `http://localhost:8080` (Server: **postgres**, credentials from `.env`).
+
+### Changing the content schema
+
+Local development updates the database directly. Before deploying a change to collections or fields, create a migration and commit it:
+
+```bash
+npm run payload migrate:create describe-the-change
+```

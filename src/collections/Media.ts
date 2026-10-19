@@ -1,3 +1,4 @@
+import path from 'path'
 import type { CollectionConfig } from 'payload'
 
 import { staffOnly } from '../access/staff'
@@ -22,5 +23,7 @@ export const Media: CollectionConfig = {
       localized: true,
     },
   ],
-  upload: true,
+  upload: {
+    staticDir: process.env.MEDIA_DIR || path.resolve(process.cwd(), 'media'),
+  },
 }

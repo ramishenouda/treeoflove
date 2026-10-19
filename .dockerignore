@@ -1,0 +1,12 @@
+.git
+.next
+node_modules
+media
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+npm-debug.log*
+.vscode
+.idea
+.DS_Store
