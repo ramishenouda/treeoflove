@@ -8,7 +8,8 @@ Next.js site with Payload CMS. Staff sign in at `/admin`.
 2. Start Postgres (and Adminer): `docker compose up -d`
 3. Install and run: `npm install` then `npm run dev`
 4. Open `http://localhost:3000` and create the first staff user at `http://localhost:3000/admin`
-5. Load sample pages, programs, and children: `npm run seed`
+5. Load realistic demo content (photos from `seedassets/`): `npm run seed:demo`  
+   (Lighter color-placeholder sample: `npm run seed`)
 
 `DATABASE_URL` in `.env.example` matches the local Docker database.
 

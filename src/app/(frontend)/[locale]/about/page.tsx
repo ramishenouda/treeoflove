@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: descriptionFrom(visible?.meta, settings.tagline),
     path: '/about',
     locale,
-    image: imageFrom(visible?.meta),
+    image: imageFrom(visible?.meta, isMedia(visible?.image) ? visible.image : null),
   })
 }
 
@@ -58,6 +58,13 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       <Container>
         {visible ? (
           <div className="space-y-16">
+            {isMedia(visible.image) ? (
+              <CmsImage
+                className="aspect-[16/9] w-full rounded-4xl object-cover shadow-soft ring-1 ring-canopy-900/5"
+                media={visible.image}
+                sizes="(min-width: 1024px) 72rem, 100vw"
+              />
+            ) : null}
             {visible.mission ? (
               <section className="relative overflow-hidden rounded-4xl bg-sun-100 px-6 py-10 sm:px-12 sm:py-14">
                 <Sprig className="pointer-events-none absolute -right-2 -top-2 h-28 w-28 text-sun-300" />

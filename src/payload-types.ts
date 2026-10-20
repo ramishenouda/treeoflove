@@ -825,6 +825,10 @@ export interface Home {
 export interface About {
   id: number;
   heading: string;
+  /**
+   * Shown near the top of the About page.
+   */
+  image?: (number | null) | Media;
   mission?: {
     root: {
       type: string;
@@ -978,6 +982,7 @@ export interface HomeSelect<T extends boolean = true> {
  */
 export interface AboutSelect<T extends boolean = true> {
   heading?: T;
+  image?: T;
   mission?: T;
   story?: T;
   sections?:

@@ -23,6 +23,14 @@ export const About: GlobalConfig = {
       localized: true,
     },
     {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Shown near the top of the About page.',
+      },
+    },
+    {
       name: 'mission',
       type: 'richText',
       localized: true,
