@@ -28,8 +28,10 @@ import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
+import { AutosaveLeaveGuard as AutosaveLeaveGuard_dd0eaa5b76bd6256e283ccebae57c1e0 } from '../../../components/admin/AutosaveLeaveGuard'
 import { Icon as Icon_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
 import { Logo as Logo_80ebcb12978a9db9a1c04af0af89c7ec } from '../../../components/admin/Graphics'
+import { DashboardButton as DashboardButton_04fe3f45198fc5046dfdd0b4d2c411bb } from '../../../components/admin/DashboardButton'
 import { Dashboard as Dashboard_16b88e9b8c48e393fa86591406efd08f } from '../../../components/admin/Dashboard'
 import { LoginNote as LoginNote_a1d85335f89946feae7b9aaee9c9d76f } from '../../../components/admin/LoginNote'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -66,8 +68,10 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
+  "/components/admin/AutosaveLeaveGuard#AutosaveLeaveGuard": AutosaveLeaveGuard_dd0eaa5b76bd6256e283ccebae57c1e0,
   "/components/admin/Graphics#Icon": Icon_80ebcb12978a9db9a1c04af0af89c7ec,
   "/components/admin/Graphics#Logo": Logo_80ebcb12978a9db9a1c04af0af89c7ec,
+  "/components/admin/DashboardButton#DashboardButton": DashboardButton_04fe3f45198fc5046dfdd0b4d2c411bb,
   "/components/admin/Dashboard#Dashboard": Dashboard_16b88e9b8c48e393fa86591406efd08f,
   "/components/admin/LoginNote#LoginNote": LoginNote_a1d85335f89946feae7b9aaee9c9d76f,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1

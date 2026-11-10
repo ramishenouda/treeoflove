@@ -2,7 +2,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import path from 'path'
-import { buildConfig } from 'payload'
+import { buildConfig, type CollectionConfig, type GlobalConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
@@ -27,6 +27,56 @@ import { migrations } from './migrations'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const leaveGuard = '/components/admin/AutosaveLeaveGuard#AutosaveLeaveGuard'
+
+function autosaves(versions: CollectionConfig['versions'] | GlobalConfig['versions']) {
+  return (
+    typeof versions === 'object' &&
+    typeof versions.drafts === 'object' &&
+    Boolean(versions.drafts.autosave)
+  )
+}
+
+/** Forms that autosave get Payload's "Leave without saving?" dialog back. Payload turns it off for them. */
+function withLeaveGuard(collection: CollectionConfig): CollectionConfig {
+  if (!autosaves(collection.versions)) return collection
+  const components = collection.admin?.components
+  return {
+    ...collection,
+    admin: {
+      ...collection.admin,
+      components: {
+        ...components,
+        edit: {
+          ...components?.edit,
+          beforeDocumentControls: [...(components?.edit?.beforeDocumentControls ?? []), leaveGuard],
+        },
+      },
+    },
+  }
+}
+
+function withGlobalLeaveGuard(global: GlobalConfig): GlobalConfig {
+  if (!autosaves(global.versions)) return global
+  const components = global.admin?.components
+  return {
+    ...global,
+    admin: {
+      ...global.admin,
+      components: {
+        ...components,
+        elements: {
+          ...components?.elements,
+          beforeDocumentControls: [
+            ...(components?.elements?.beforeDocumentControls ?? []),
+            leaveGuard,
+          ],
+        },
+      },
+    },
+  }
+}
+
 export default buildConfig({
   serverURL: siteUrl(),
   csrf: [siteUrl()],
@@ -44,6 +94,7 @@ export default buildConfig({
         Logo: '/components/admin/Graphics#Logo',
         Icon: '/components/admin/Graphics#Icon',
       },
+      actions: ['/components/admin/DashboardButton#DashboardButton'],
       beforeDashboard: ['/components/admin/Dashboard#Dashboard'],
       beforeLogin: ['/components/admin/LoginNote#LoginNote'],
     },
@@ -61,8 +112,10 @@ export default buildConfig({
     },
   },
   // Order matters: the admin menu lists groups in the order they first appear.
-  collections: [News, Albums, Programs, Media, Children, Team, Messages, Donations, Users],
-  globals: [Home, About, Privacy, SiteSettings],
+  collections: [News, Albums, Programs, Media, Children, Team, Messages, Donations, Users].map(
+    withLeaveGuard,
+  ),
+  globals: [Home, About, Privacy, SiteSettings].map(withGlobalLeaveGuard),
   localization: {
     locales: [
       { code: 'en', label: 'English' },
