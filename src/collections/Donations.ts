@@ -13,7 +13,8 @@ export const Donations: CollectionConfig = {
   admin: {
     useAsTitle: 'targetName',
     defaultColumns: ['paidAt', 'amount', 'frequency', 'targetName', 'stripeId'],
-    group: 'Donations',
+    group: 'Inbox',
+    listSearchableFields: ['targetName', 'stripeId'],
     description: 'Stripe writes a row when a gift is paid. Staff can read it. Card numbers are not stored.',
   },
   access: {

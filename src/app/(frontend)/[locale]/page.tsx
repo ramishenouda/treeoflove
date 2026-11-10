@@ -16,7 +16,7 @@ import { siteUrl } from '@/lib/site'
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await requireLocale(params)
   const [settings, home] = await Promise.all([getSiteSettings(locale), getHome(locale)])
-  const visible = home?._status === 'published' ? home : null
+  const visible = home
   return pageMetadata({
     title: titleFrom(visible?.meta, visible?.heading || settings.siteName, settings.siteName),
     description: descriptionFrom(visible?.meta, visible?.intro || settings.tagline),
@@ -36,7 +36,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     getChildren({ page: 1, locale }),
     getNewsList({ page: 1, locale }),
   ])
-  const visible = home?._status === 'published' ? home : null
+  const visible = home
   const heading = visible?.heading
   const intro = visible?.intro
   const sections = visible?.sections

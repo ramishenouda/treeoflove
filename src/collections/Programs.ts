@@ -1,13 +1,18 @@
 import { slugField, type CollectionConfig } from 'payload'
 
 import { staffOnly, staffOrPublished } from '../access/staff'
+import { contentTab, draftVersions, updatedByField } from '../fields/shared'
+import { previewUrl } from '../lib/preview'
 
 export const Programs: CollectionConfig = {
   slug: 'programs',
+  orderable: true,
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'acceptDonations', '_status'],
-    group: 'Programs',
+    defaultColumns: ['title', 'cover', 'acceptDonations', '_status'],
+    listSearchableFields: ['title', 'summary', 'slug'],
+    group: 'Content',
+    preview: (doc, { locale }) => previewUrl({ collection: 'programs', slug: doc.slug, locale }),
   },
   access: {
     create: staffOnly,
@@ -15,53 +20,51 @@ export const Programs: CollectionConfig = {
     update: staffOnly,
     delete: staffOnly,
   },
-  defaultSort: 'sortOrder',
-  versions: {
-    drafts: true,
-  },
+  versions: draftVersions,
   fields: [
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-      localized: true,
+      type: 'tabs',
+      tabs: [
+        contentTab('Program', [
+          {
+            name: 'title',
+            type: 'text',
+            required: true,
+            localized: true,
+          },
+          {
+            name: 'summary',
+            type: 'textarea',
+            localized: true,
+            admin: {
+              description:
+                'A short introduction. Also used as the search description when that field is left blank.',
+            },
+          },
+          {
+            name: 'cover',
+            type: 'upload',
+            relationTo: 'media',
+          },
+          {
+            name: 'story',
+            type: 'richText',
+            localized: true,
+          },
+        ]),
+      ],
     },
     slugField(),
-    {
-      name: 'summary',
-      type: 'textarea',
-      localized: true,
-      admin: {
-        description: 'A short introduction. Also used as the search description when that field is left blank.',
-      },
-    },
-    {
-      name: 'story',
-      type: 'richText',
-      localized: true,
-    },
-    {
-      name: 'cover',
-      type: 'upload',
-      relationTo: 'media',
-    },
-    {
-      name: 'sortOrder',
-      type: 'number',
-      defaultValue: 0,
-      admin: {
-        position: 'sidebar',
-        description: 'Lower numbers appear first.',
-      },
-    },
     {
       name: 'acceptDonations',
       type: 'checkbox',
       defaultValue: false,
       admin: {
         position: 'sidebar',
-        description: 'Turn this on to list the program on the donate page. No Stripe product is required.',
+        description:
+          'Turn this on to list the program on the donate page. No Stripe product is required.',
       },
     },
+    updatedByField,
   ],
 }

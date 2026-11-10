@@ -25,6 +25,8 @@ export function CmsImage({
 }) {
   const src = mediaSrc(media)
   if (!src) return null
+  // Staff set the focal point in the admin. Keep it in view when the image is cropped by object-cover.
+  const hasFocus = typeof media.focalX === 'number' && typeof media.focalY === 'number'
 
   return (
     <Image
@@ -35,6 +37,7 @@ export function CmsImage({
       className={className}
       sizes={sizes}
       priority={priority}
+      style={hasFocus ? { objectPosition: `${media.focalX}% ${media.focalY}%` } : undefined}
     />
   )
 }

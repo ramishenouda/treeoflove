@@ -1,4 +1,5 @@
 import config from '@payload-config'
+import { draftMode, headers } from 'next/headers'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
@@ -7,6 +8,31 @@ import { defaultLocale, type Locale } from '@/lib/i18n'
 import { PAGE_SIZE } from '@/lib/site'
 
 export const getCms = cache(async () => getPayload({ config }))
+
+/**
+ * The signed-in staff member when preview is switched on (via /api/preview), otherwise null.
+ * Only detail pages and page globals use it, so lists on the public site always show published content.
+ */
+export const getPreviewUser = cache(async () => {
+  try {
+    const { isEnabled } = await draftMode()
+    if (!isEnabled) return null
+    const payload = await getCms()
+    const { user } = await payload.auth({ headers: await headers() })
+    return user ?? null
+  } catch {
+    return null
+  }
+})
+
+async function previewArgs() {
+  const user = await getPreviewUser()
+  return user ? { draft: true, user } : { draft: false }
+}
+
+export async function isPreview() {
+  return Boolean(await getPreviewUser())
+}
 
 const settingDefaults: SiteSetting = {
   id: 0,
@@ -32,24 +58,35 @@ export const getSiteSettings = cache(async (locale: LocaleArg = defaultLocale) =
   }
 })
 
-async function publishedGlobal<T>(slug: 'home' | 'about' | 'privacy', locale: LocaleArg = defaultLocale) {
+async function publishedGlobal<T extends { _status?: 'draft' | 'published' | null }>(
+  slug: 'home' | 'about' | 'privacy',
+  locale: LocaleArg = defaultLocale,
+) {
   try {
     const payload = await getCms()
-    return (await payload.findGlobal({
+    const preview = await previewArgs()
+    const doc = (await payload.findGlobal({
       slug,
       depth: 1,
       locale,
       fallbackLocale: defaultLocale,
       overrideAccess: false,
-      draft: false,
-    })) as T
+      ...preview,
+    })) as unknown as T
+    // A page that was never published has no public version yet.
+    if (!preview.draft && doc._status !== 'published') return null
+    return doc
   } catch {
     return null
   }
 }
 
-export const getHome = cache((locale: LocaleArg = defaultLocale) => publishedGlobal<Home>('home', locale))
-export const getAbout = cache((locale: LocaleArg = defaultLocale) => publishedGlobal<About>('about', locale))
+export const getHome = cache((locale: LocaleArg = defaultLocale) =>
+  publishedGlobal<Home>('home', locale),
+)
+export const getAbout = cache((locale: LocaleArg = defaultLocale) =>
+  publishedGlobal<About>('about', locale),
+)
 export const getPrivacy = cache((locale: LocaleArg = defaultLocale) =>
   publishedGlobal<Privacy>('privacy', locale),
 )
@@ -62,7 +99,7 @@ export async function getTeam(locale: LocaleArg = defaultLocale) {
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     limit: 100,
     where: { published: { equals: true } },
   })
@@ -93,7 +130,7 @@ export async function getPrograms({
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     page,
     limit: PAGE_SIZE,
     where: textQuery(['title', 'summary'], q),
@@ -108,7 +145,7 @@ export async function getProgramOptions(locale: LocaleArg = defaultLocale) {
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     limit: 200,
     select: { title: true, slug: true },
   })
@@ -125,7 +162,7 @@ export async function searchDonationPrograms(q: string, locale: LocaleArg = defa
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     limit: 8,
     select: { title: true, slug: true },
     where: {
@@ -148,7 +185,7 @@ export async function searchDonationChildren(q: string, locale: LocaleArg = defa
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     limit: 8,
     select: { legalName: false, privateNotes: false },
     where: {
@@ -160,12 +197,14 @@ export async function searchDonationChildren(q: string, locale: LocaleArg = defa
 
 export async function getProgram(slug: string, locale: LocaleArg = defaultLocale) {
   const payload = await getCms()
+  const preview = await previewArgs()
   const result = await payload.find({
     collection: 'programs',
     depth: 1,
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
+    ...preview,
     limit: 1,
     where: { slug: { equals: slug } },
   })
@@ -195,7 +234,7 @@ export async function getChildren({
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     page,
     limit: PAGE_SIZE,
     where,
@@ -208,12 +247,14 @@ export async function getChildren({
 
 export async function getChild(slug: string, locale: LocaleArg = defaultLocale) {
   const payload = await getCms()
+  const preview = await previewArgs()
   const result = await payload.find({
     collection: 'children',
     depth: 1,
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
+    ...preview,
     limit: 1,
     where: { slug: { equals: slug } },
     select: {
@@ -232,7 +273,7 @@ export async function getChildrenForProgram(programId: number, locale: LocaleArg
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     limit: 24,
     where: { program: { equals: programId } },
     select: {
@@ -243,7 +284,13 @@ export async function getChildrenForProgram(programId: number, locale: LocaleArg
   return result.docs as Child[]
 }
 
-export async function getNewsList({ page, locale = defaultLocale }: { page: number; locale?: Locale }) {
+export async function getNewsList({
+  page,
+  locale = defaultLocale,
+}: {
+  page: number
+  locale?: Locale
+}) {
   const payload = await getCms()
   return payload.find({
     collection: 'news',
@@ -259,12 +306,14 @@ export async function getNewsList({ page, locale = defaultLocale }: { page: numb
 
 export async function getNewsArticle(slug: string, locale: LocaleArg = defaultLocale) {
   const payload = await getCms()
+  const preview = await previewArgs()
   const result = await payload.find({
     collection: 'news',
     depth: 1,
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
+    ...preview,
     limit: 1,
     where: { slug: { equals: slug } },
   })
@@ -279,7 +328,7 @@ export async function getAlbums(locale: LocaleArg = defaultLocale) {
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
-    sort: 'sortOrder',
+    sort: '_order',
     limit: 100,
   })
   return result.docs as Album[]
@@ -287,12 +336,14 @@ export async function getAlbums(locale: LocaleArg = defaultLocale) {
 
 export async function getAlbum(slug: string, locale: LocaleArg = defaultLocale) {
   const payload = await getCms()
+  const preview = await previewArgs()
   const result = await payload.find({
     collection: 'albums',
     depth: 1,
     locale,
     fallbackLocale: defaultLocale,
     overrideAccess: false,
+    user: preview.draft ? preview.user : undefined,
     limit: 1,
     where: { slug: { equals: slug } },
   })

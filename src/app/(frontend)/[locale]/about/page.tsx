@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     getAbout(locale),
     getDictionary(locale),
   ])
-  const visible = about?._status === 'published' ? about : null
+  const visible = about
   return pageMetadata({
     title: titleFrom(visible?.meta, visible?.heading || dictionary.about.fallbackTitle, settings.siteName),
     description: descriptionFrom(visible?.meta, settings.tagline),
@@ -46,7 +46,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     getAbout(locale),
     getTeam(locale),
   ])
-  const visible = about?._status === 'published' ? about : null
+  const visible = about
 
   return (
     <main>

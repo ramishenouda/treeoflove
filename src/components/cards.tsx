@@ -174,7 +174,7 @@ export function AlbumCard({
   dictionary: Dictionary
   level?: Level
 }) {
-  const photos = (album.photos ?? []).map((photo) => photo.image).filter(isMedia)
+  const photos = (album.photos ?? []).filter(isMedia)
   const cover = photos[0]
   return (
     <a className="group block" href={localizedPath(locale, `/gallery/${album.slug}`)}>

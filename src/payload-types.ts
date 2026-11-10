@@ -67,15 +67,15 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    media: Media;
-    team: Team;
-    programs: Program;
-    children: Child;
     news: News;
     albums: Album;
+    programs: Program;
+    media: Media;
+    children: Child;
+    team: Team;
     messages: Message;
     donations: Donation;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -83,15 +83,15 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    team: TeamSelect<false> | TeamSelect<true>;
-    programs: ProgramsSelect<false> | ProgramsSelect<true>;
-    children: ChildrenSelect<false> | ChildrenSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     albums: AlbumsSelect<false> | AlbumsSelect<true>;
+    programs: ProgramsSelect<false> | ProgramsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    children: ChildrenSelect<false> | ChildrenSelect<true>;
+    team: TeamSelect<false> | TeamSelect<true>;
     messages: MessagesSelect<false> | MessagesSelect<true>;
     donations: DonationsSelect<false> | DonationsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -102,16 +102,16 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'de') | ('en' | 'de')[];
   globals: {
-    'site-settings': SiteSetting;
     home: Home;
     about: About;
     privacy: Privacy;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
-    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     home: HomeSelect<false> | HomeSelect<true>;
     about: AboutSelect<false> | AboutSelect<true>;
     privacy: PrivacySelect<false> | PrivacySelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
   locale: 'en' | 'de';
   widgets: {
@@ -143,188 +143,11 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * Every photo needs alt text. It is shown to people who cannot see the image.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "team".
- */
-export interface Team {
-  id: number;
-  name: string;
-  role?: string | null;
-  photo?: (number | null) | Media;
-  bio?: string | null;
-  /**
-   * Lower numbers appear first.
-   */
-  sortOrder?: number | null;
-  published?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "programs".
- */
-export interface Program {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  /**
-   * A short introduction. Also used as the search description when that field is left blank.
-   */
-  summary?: string | null;
-  story?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  cover?: (number | null) | Media;
-  /**
-   * Lower numbers appear first.
-   */
-  sortOrder?: number | null;
-  /**
-   * Turn this on to list the program on the donate page. No Stripe product is required.
-   */
-  acceptDonations?: boolean | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "children".
- */
-export interface Child {
-  id: number;
-  firstName: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  photo?: (number | null) | Media;
-  /**
-   * Shown on the public profile. Do not include a last name, address, school, or health details.
-   */
-  shortStory?: string | null;
-  age?: number | null;
-  /**
-   * Optional. Lets visitors see the children in a program.
-   */
-  program?: (number | null) | Program;
-  /**
-   * Lower numbers appear first.
-   */
-  sortOrder?: number | null;
-  /**
-   * Required before this profile can be published.
-   */
-  photoConsent?: boolean | null;
-  /**
-   * Shows the donate button and includes this child in donate search.
-   */
-  acceptDonations?: boolean | null;
-  /**
-   * Never shown on the website.
-   */
-  legalName?: string | null;
-  /**
-   * Never shown on the website.
-   */
-  privateNotes?: string | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "news".
  */
 export interface News {
   id: number;
   title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  publishedOn: string;
   /**
    * A short introduction. Also used as the search description when that field is left blank.
    */
@@ -353,9 +176,106 @@ export interface News {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Shown on the article. News is sorted by this date.
+   */
+  publishedOn: string;
+  updatedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Every photo needs alt text. Use “Bulk upload” to add many at once. Click the photo to set the focal point so crops keep faces in view.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe what is in the photo for people who cannot see it, e.g. “Two children reading at a table”.
+   */
+  alt: string;
+  /**
+   * Optional. Shown under the photo in gallery albums.
+   */
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Admins can do everything. Editors manage website content and the inbox, but cannot see children’s private details, change site settings, or manage accounts.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  /**
+   * Shown in the admin next to the changes this person makes.
+   */
+  name?: string | null;
+  role: 'admin' | 'editor';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -363,29 +283,144 @@ export interface News {
  */
 export interface Album {
   id: number;
+  _order?: string | null;
   title: string;
+  /**
+   * Pick existing photos, or drop several new ones in at once. Drag to reorder. Each photo keeps its own caption, edited on the photo itself.
+   */
+  photos?: (number | Media)[] | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
   slug: string;
   /**
-   * Lower numbers appear first.
+   * Show this album on the website.
    */
-  sortOrder?: number | null;
   published?: boolean | null;
-  photos?:
-    | {
-        image: number | Media;
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  updatedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Sent from the contact form and emailed to the notification address.
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs".
+ */
+export interface Program {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * A short introduction. Also used as the search description when that field is left blank.
+   */
+  summary?: string | null;
+  cover?: (number | null) | Media;
+  story?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Turn this on to list the program on the donate page. No Stripe product is required.
+   */
+  acceptDonations?: boolean | null;
+  updatedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "children".
+ */
+export interface Child {
+  id: number;
+  _order?: string | null;
+  firstName: string;
+  photo?: (number | null) | Media;
+  /**
+   * Shown on the public profile. Do not include a last name, address, school, or health details.
+   */
+  shortStory?: string | null;
+  age?: number | null;
+  /**
+   * Optional. Lets visitors see the children in a program.
+   */
+  program?: (number | null) | Program;
+  legalName?: string | null;
+  privateNotes?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Required before this profile can be published.
+   */
+  photoConsent?: boolean | null;
+  /**
+   * Shows the donate button and includes this child in donate search.
+   */
+  acceptDonations?: boolean | null;
+  updatedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Shown on the About page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team".
+ */
+export interface Team {
+  id: number;
+  _order?: string | null;
+  name: string;
+  role?: string | null;
+  photo?: (number | null) | Media;
+  bio?: string | null;
+  /**
+   * Show this person on the About page.
+   */
+  published?: boolean | null;
+  updatedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Sent from the contact form and emailed to the notification address. Mark a message as handled once someone has replied.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "messages".
@@ -399,6 +434,11 @@ export interface Message {
    * The sender agreed to the privacy policy.
    */
   consent: boolean;
+  status: 'new' | 'handled';
+  /**
+   * Who replied, and anything the next person should know. Not sent to the sender.
+   */
+  staffNote?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -449,26 +489,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
-      } | null)
-    | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'team';
-        value: number | Team;
-      } | null)
-    | ({
-        relationTo: 'programs';
-        value: number | Program;
-      } | null)
-    | ({
-        relationTo: 'children';
-        value: number | Child;
-      } | null)
-    | ({
         relationTo: 'news';
         value: number | News;
       } | null)
@@ -477,12 +497,32 @@ export interface PayloadLockedDocument {
         value: number | Album;
       } | null)
     | ({
+        relationTo: 'programs';
+        value: number | Program;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'children';
+        value: number | Child;
+      } | null)
+    | ({
+        relationTo: 'team';
+        value: number | Team;
+      } | null)
+    | ({
         relationTo: 'messages';
         value: number | Message;
       } | null)
     | ({
         relationTo: 'donations';
         value: number | Donation;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -528,26 +568,67 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "news_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface NewsSelect<T extends boolean = true> {
+  title?: T;
+  summary?: T;
+  cover?: T;
+  body?: T;
+  meta?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        title?: T;
+        description?: T;
+        image?: T;
       };
+  generateSlug?: T;
+  slug?: T;
+  publishedOn?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "albums_select".
+ */
+export interface AlbumsSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  photos?: T;
+  generateSlug?: T;
+  slug?: T;
+  published?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs_select".
+ */
+export interface ProgramsSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  summary?: T;
+  cover?: T;
+  story?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  generateSlug?: T;
+  slug?: T;
+  acceptDonations?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -555,6 +636,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -566,60 +648,52 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "team_select".
- */
-export interface TeamSelect<T extends boolean = true> {
-  name?: T;
-  role?: T;
-  photo?: T;
-  bio?: T;
-  sortOrder?: T;
-  published?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "programs_select".
- */
-export interface ProgramsSelect<T extends boolean = true> {
-  title?: T;
-  generateSlug?: T;
-  slug?: T;
-  summary?: T;
-  story?: T;
-  cover?: T;
-  sortOrder?: T;
-  acceptDonations?: T;
-  meta?:
+  sizes?:
     | T
     | {
-        title?: T;
-        description?: T;
-        image?: T;
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
       };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "children_select".
  */
 export interface ChildrenSelect<T extends boolean = true> {
+  _order?: T;
   firstName?: T;
-  generateSlug?: T;
-  slug?: T;
   photo?: T;
   shortStory?: T;
   age?: T;
   program?: T;
-  sortOrder?: T;
-  photoConsent?: T;
-  acceptDonations?: T;
   legalName?: T;
   privateNotes?: T;
   meta?:
@@ -629,50 +703,27 @@ export interface ChildrenSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  generateSlug?: T;
+  slug?: T;
+  photoConsent?: T;
+  acceptDonations?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news_select".
+ * via the `definition` "team_select".
  */
-export interface NewsSelect<T extends boolean = true> {
-  title?: T;
-  generateSlug?: T;
-  slug?: T;
-  publishedOn?: T;
-  summary?: T;
-  cover?: T;
-  body?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "albums_select".
- */
-export interface AlbumsSelect<T extends boolean = true> {
-  title?: T;
-  generateSlug?: T;
-  slug?: T;
-  sortOrder?: T;
+export interface TeamSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  role?: T;
+  photo?: T;
+  bio?: T;
   published?: T;
-  photos?:
-    | T
-    | {
-        image?: T;
-        caption?: T;
-        id?: T;
-      };
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -685,6 +736,8 @@ export interface MessagesSelect<T extends boolean = true> {
   email?: T;
   message?: T;
   consent?: T;
+  status?: T;
+  staffNote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -703,6 +756,31 @@ export interface DonationsSelect<T extends boolean = true> {
   paidAt?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -746,38 +824,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings".
- */
-export interface SiteSetting {
-  id: number;
-  siteName: string;
-  tagline?: string | null;
-  logo?: (number | null) | Media;
-  footerEmail?: string | null;
-  footerPhone?: string | null;
-  /**
-   * City or country shown in the footer. No street address for a child belongs here.
-   */
-  footerLocation?: string | null;
-  /**
-   * Where contact form messages are sent. Visitors do not see this address.
-   */
-  notificationEmail?: string | null;
-  /**
-   * Shown on the donate page, in euros.
-   */
-  suggestedAmounts?:
-    | {
-        amount: number;
-        id?: string | null;
-      }[]
-    | null;
-  minimumAmount: number;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home".
  */
 export interface Home {
@@ -814,6 +860,7 @@ export interface Home {
      */
     image?: (number | null) | Media;
   };
+  updatedBy?: (number | null) | User;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -888,6 +935,7 @@ export interface About {
      */
     image?: (number | null) | Media;
   };
+  updatedBy?: (number | null) | User;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -922,32 +970,45 @@ export interface Privacy {
      */
     image?: (number | null) | Media;
   };
+  updatedBy?: (number | null) | User;
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * Only admins can change these.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-settings_select".
+ * via the `definition` "site-settings".
  */
-export interface SiteSettingsSelect<T extends boolean = true> {
-  siteName?: T;
-  tagline?: T;
-  logo?: T;
-  footerEmail?: T;
-  footerPhone?: T;
-  footerLocation?: T;
-  notificationEmail?: T;
+export interface SiteSetting {
+  id: number;
+  siteName: string;
+  tagline?: string | null;
+  logo?: (number | null) | Media;
+  footerEmail?: string | null;
+  footerPhone?: string | null;
+  /**
+   * City or country shown in the footer. No street address for a child belongs here.
+   */
+  footerLocation?: string | null;
+  /**
+   * Where contact form messages are sent. Visitors do not see this address.
+   */
+  notificationEmail?: string | null;
+  /**
+   * Shown on the donate page, in euros.
+   */
   suggestedAmounts?:
-    | T
     | {
-        amount?: T;
-        id?: T;
-      };
-  minimumAmount?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+        amount: number;
+        id?: string | null;
+      }[]
+    | null;
+  minimumAmount: number;
+  updatedBy?: (number | null) | User;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -971,6 +1032,7 @@ export interface HomeSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  updatedBy?: T;
   _status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -999,6 +1061,7 @@ export interface AboutSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  updatedBy?: T;
   _status?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1018,7 +1081,32 @@ export interface PrivacySelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  updatedBy?: T;
   _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  tagline?: T;
+  logo?: T;
+  footerEmail?: T;
+  footerPhone?: T;
+  footerLocation?: T;
+  notificationEmail?: T;
+  suggestedAmounts?:
+    | T
+    | {
+        amount?: T;
+        id?: T;
+      };
+  minimumAmount?: T;
+  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

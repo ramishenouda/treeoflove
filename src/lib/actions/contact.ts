@@ -27,7 +27,7 @@ export async function sendMessage(_previous: ContactState, formData: FormData): 
   await payload.create({
     collection: 'messages',
     overrideAccess: true,
-    data: { name, email, message, consent: true },
+    data: { name, email, message, consent: true, status: 'new' },
   })
 
   const settings = await payload.findGlobal({ slug: 'site-settings', overrideAccess: true, depth: 0 })

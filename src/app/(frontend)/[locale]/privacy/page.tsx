@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     getPrivacy(locale),
     getDictionary(locale),
   ])
-  const visible = privacy?._status === 'published' ? privacy : null
+  const visible = privacy
   return pageMetadata({
     title: titleFrom(visible?.meta, visible?.title || dictionary.privacy.fallbackTitle, settings.siteName),
     description: descriptionFrom(visible?.meta, dictionary.privacy.fallbackTitle),
@@ -27,7 +27,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const locale = await requireLocale(params)
   const dictionary = await getDictionary(locale)
   const privacy = await getPrivacy(locale)
-  const visible = privacy?._status === 'published' ? privacy : null
+  const visible = privacy
 
   return (
     <main>

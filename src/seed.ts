@@ -88,7 +88,6 @@ async function seed(payload: Payload) {
     slug: 'school-meals',
     summary: 'A warm meal in the middle of the day for children in the program.',
     story: 'Families choose this program when a regular meal would make the day easier. Gifts pay for food and the people who serve it.',
-    sortOrder: 1,
     color: { r: 22, g: 101, b: 52 },
   })
   await ensureProgram(payload, {
@@ -96,7 +95,6 @@ async function seed(payload: Payload) {
     slug: 'after-school-learning',
     summary: 'Quiet time, books, and a helper for homework.',
     story: 'Children stay for a calm hour after lessons. Volunteers sit with them, read, and help with the work they bring from class.',
-    sortOrder: 2,
     color: { r: 120, g: 80, b: 40 },
   })
   const playId = await ensureProgram(payload, {
@@ -104,7 +102,6 @@ async function seed(payload: Payload) {
     slug: 'safe-places-to-play',
     summary: 'Outdoor time with someone watching, in a place set aside for play.',
     story: 'The program keeps a yard and a set of games ready. Children spend the afternoon outside with staff nearby.',
-    sortOrder: 3,
     color: { r: 30, g: 90, b: 110 },
   })
 
@@ -116,7 +113,6 @@ async function seed(payload: Payload) {
     shortStory: 'Amina likes drawing and shares the midday meal with her friends.',
     legalName: 'Amina Berger',
     color: { r: 180, g: 90, b: 70 },
-    sortOrder: 1,
   })
   await ensureChild(payload, {
     firstName: 'Leila',
@@ -126,7 +122,6 @@ async function seed(payload: Payload) {
     shortStory: 'Leila reads every afternoon and helps younger children find a book.',
     legalName: 'Leila Novak',
     color: { r: 90, g: 70, b: 140 },
-    sortOrder: 2,
   })
   await ensureChild(payload, {
     firstName: 'Noah',
@@ -136,7 +131,6 @@ async function seed(payload: Payload) {
     shortStory: 'Noah spends his afternoons outside and looks after the football.',
     legalName: 'Noah Keller',
     color: { r: 40, g: 110, b: 130 },
-    sortOrder: 3,
   })
   await ensureChild(payload, {
     firstName: 'Sofia',
@@ -146,7 +140,6 @@ async function seed(payload: Payload) {
     shortStory: 'Sofia helps set the tables and tells stories while everyone eats.',
     legalName: 'Sofia Marin',
     color: { r: 150, g: 110, b: 40 },
-    sortOrder: 4,
   })
 
   await ensureNews(payload, {
@@ -167,11 +160,11 @@ async function seed(payload: Payload) {
   await ensureAlbum(payload)
 
   const team = [
-    ['Mara Kovacs', 'Director', 'Mara started Tree of Love and keeps the programs connected.', 1],
-    ['Jonas Weber', 'Programs', 'Jonas visits each program and writes the updates you see in the news.', 2],
-    ['Elena Rossi', 'Partnerships', 'Elena talks with the schools and donors who keep the work going.', 3],
+    ['Mara Kovacs', 'Director', 'Mara started Tree of Love and keeps the programs connected.'],
+    ['Jonas Weber', 'Programs', 'Jonas visits each program and writes the updates you see in the news.'],
+    ['Elena Rossi', 'Partnerships', 'Elena talks with the schools and donors who keep the work going.'],
   ] as const
-  for (const [name, role, bio, sortOrder] of team) {
+  for (const [name, role, bio] of team) {
     const existing = await payload.find({
       collection: 'team',
       overrideAccess: true,
@@ -182,7 +175,7 @@ async function seed(payload: Payload) {
     if (existing.docs[0]) continue
     await payload.create({
       collection: 'team',
-      data: { name, role, bio, sortOrder, published: true },
+      data: { name, role, bio, published: true },
     })
   }
 
@@ -275,7 +268,6 @@ async function ensureProgram(
     slug: string
     summary: string
     story: string
-    sortOrder: number
     color: { r: number; g: number; b: number }
   },
 ) {
@@ -291,7 +283,6 @@ async function ensureProgram(
       summary: input.summary,
       story: richText(input.story),
       cover,
-      sortOrder: input.sortOrder,
       acceptDonations: true,
       _status: 'published',
     },
@@ -309,7 +300,6 @@ async function ensureChild(
     shortStory: string
     legalName: string
     color: { r: number; g: number; b: number }
-    sortOrder: number
   },
 ) {
   const existingResult = await payload.find({
@@ -330,7 +320,6 @@ async function ensureChild(
     shortStory: input.shortStory,
     age: input.age,
     program: input.program,
-    sortOrder: input.sortOrder,
     photoConsent: true,
     acceptDonations: true,
     legalName: input.legalName,
@@ -372,17 +361,15 @@ async function ensureAlbum(payload: Payload) {
   if (await findBySlug(payload, 'albums', 'garden-afternoon')) return
   const yard = await upload(payload, 'garden-yard.png', 'Green placeholder for the garden yard', { r: 70, g: 120, b: 70 })
   const table = await upload(payload, 'garden-table.png', 'Warm placeholder for the meal table', { r: 160, g: 110, b: 60 })
+  await payload.update({ collection: 'media', id: yard, data: { caption: 'The yard used for afternoon play.' } })
+  await payload.update({ collection: 'media', id: table, data: { caption: 'Tables set for the midday meal.' } })
   await payload.create({
     collection: 'albums',
     data: {
       title: 'A garden afternoon',
       slug: 'garden-afternoon',
-      sortOrder: 1,
       published: true,
-      photos: [
-        { image: yard, caption: 'The yard used for afternoon play.' },
-        { image: table, caption: 'Tables set for the midday meal.' },
-      ],
+      photos: [yard, table],
     },
   })
 }

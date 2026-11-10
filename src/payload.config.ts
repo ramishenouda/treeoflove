@@ -19,6 +19,8 @@ import { About } from './globals/About'
 import { Home } from './globals/Home'
 import { Privacy } from './globals/Privacy'
 import { SiteSettings } from './globals/SiteSettings'
+import { createMissingImageSizes } from './lib/media-sizes'
+import { livePreviewBreakpoints, previewUrl } from './lib/preview'
 import { siteUrl } from './lib/site'
 import { migrations } from './migrations'
 
@@ -33,9 +35,34 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    meta: {
+      titleSuffix: ' · Tree of Love admin',
+    },
+    dateFormat: 'd MMM yyyy, HH:mm',
+    components: {
+      graphics: {
+        Logo: '/components/admin/Graphics#Logo',
+        Icon: '/components/admin/Graphics#Icon',
+      },
+      beforeDashboard: ['/components/admin/Dashboard#Dashboard'],
+      beforeLogin: ['/components/admin/LoginNote#LoginNote'],
+    },
+    livePreview: {
+      collections: ['programs', 'children', 'news', 'albums'],
+      globals: ['home', 'about', 'privacy'],
+      breakpoints: livePreviewBreakpoints,
+      url: ({ data, collectionConfig, globalConfig, locale }) =>
+        previewUrl({
+          collection: collectionConfig?.slug,
+          global: globalConfig?.slug,
+          slug: data?.slug,
+          locale,
+        }),
+    },
   },
-  collections: [Users, Media, Team, Programs, Children, News, Albums, Messages, Donations],
-  globals: [SiteSettings, Home, About, Privacy],
+  // Order matters: the admin menu lists groups in the order they first appear.
+  collections: [News, Albums, Programs, Media, Children, Team, Messages, Donations, Users],
+  globals: [Home, About, Privacy, SiteSettings],
   localization: {
     locales: [
       { code: 'en', label: 'English' },
@@ -56,8 +83,20 @@ export default buildConfig({
     prodMigrations: migrations,
   }),
   sharp,
+  onInit: (payload) => {
+    // Photos uploaded before thumbnails existed get their sizes once, in the background, when the site starts.
+    if (
+      process.env.NODE_ENV !== 'production' ||
+      process.env.NEXT_PHASE === 'phase-production-build'
+    )
+      return
+    void createMissingImageSizes(payload)
+      .then(({ done }) => done && payload.logger.info(`Created image sizes for ${done} photos.`))
+      .catch((error) => payload.logger.error({ err: error, msg: 'Creating image sizes failed' }))
+  },
   plugins: [
     seoPlugin({
+      tabbedUI: true,
       collections: ['programs', 'children', 'news'],
       globals: ['home', 'about', 'privacy'],
       uploadsCollection: 'media',

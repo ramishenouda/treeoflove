@@ -1,6 +1,8 @@
 import { slugField, type CollectionConfig } from 'payload'
 
 import { staffOnly, staffOrPublished } from '../access/staff'
+import { contentTab, draftVersions, updatedByField } from '../fields/shared'
+import { previewUrl } from '../lib/preview'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -10,8 +12,10 @@ export const News: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'publishedOn', '_status'],
-    group: 'News & gallery',
+    defaultColumns: ['title', 'cover', 'publishedOn', '_status'],
+    listSearchableFields: ['title', 'summary', 'slug'],
+    group: 'Content',
+    preview: (doc, { locale }) => previewUrl({ collection: 'news', slug: doc.slug, locale }),
   },
   access: {
     create: staffOnly,
@@ -20,44 +24,55 @@ export const News: CollectionConfig = {
     delete: staffOnly,
   },
   defaultSort: '-publishedOn',
-  versions: {
-    drafts: true,
-  },
+  versions: draftVersions,
   fields: [
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-      localized: true,
+      type: 'tabs',
+      tabs: [
+        contentTab('Article', [
+          {
+            name: 'title',
+            type: 'text',
+            required: true,
+            localized: true,
+          },
+          {
+            name: 'summary',
+            type: 'textarea',
+            localized: true,
+            admin: {
+              description:
+                'A short introduction. Also used as the search description when that field is left blank.',
+            },
+          },
+          {
+            name: 'cover',
+            type: 'upload',
+            relationTo: 'media',
+          },
+          {
+            name: 'body',
+            type: 'richText',
+            localized: true,
+          },
+        ]),
+      ],
     },
     slugField(),
     {
       name: 'publishedOn',
+      label: 'Date',
       type: 'date',
       required: true,
+      defaultValue: () => new Date().toISOString(),
       admin: {
+        position: 'sidebar',
+        description: 'Shown on the article. News is sorted by this date.',
         date: {
           pickerAppearance: 'dayOnly',
         },
       },
     },
-    {
-      name: 'summary',
-      type: 'textarea',
-      localized: true,
-      admin: {
-        description: 'A short introduction. Also used as the search description when that field is left blank.',
-      },
-    },
-    {
-      name: 'cover',
-      type: 'upload',
-      relationTo: 'media',
-    },
-    {
-      name: 'body',
-      type: 'richText',
-      localized: true,
-    },
+    updatedByField,
   ],
 }

@@ -131,7 +131,6 @@ async function seedPrograms(
         'This is demonstration program copy for Tree of Love. Staff can edit every field in the admin.',
       ],
       cover: media.programEducation,
-      sortOrder: 1,
     },
     {
       title: 'School supplies',
@@ -143,7 +142,6 @@ async function seedPrograms(
         'This is demonstration program copy for Tree of Love. Staff can edit every field in the admin.',
       ],
       cover: media.programSupplies,
-      sortOrder: 2,
     },
     {
       title: 'Community support',
@@ -155,7 +153,6 @@ async function seedPrograms(
         'This is demonstration program copy for Tree of Love. Staff can edit every field in the admin.',
       ],
       cover: media.programCommunity,
-      sortOrder: 3,
     },
     {
       title: 'Child well-being',
@@ -167,7 +164,6 @@ async function seedPrograms(
         'This is demonstration program copy for Tree of Love. Staff can edit every field in the admin.',
       ],
       cover: media.community7,
-      sortOrder: 4,
     },
   ]
 
@@ -179,7 +175,6 @@ async function seedPrograms(
       summary: program.summary,
       story: richText(...program.story),
       cover: program.cover,
-      sortOrder: program.sortOrder,
       acceptDonations: true,
       _status: 'published' as const,
       meta: {
@@ -221,7 +216,6 @@ async function seedChildren(
       photo: media.child1,
       shortStory:
         'Sample profile: enjoys reading time in the education support program. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 1,
     },
     {
       firstName: 'Leo',
@@ -231,7 +225,6 @@ async function seedChildren(
       photo: media.child2,
       shortStory:
         'Sample profile: benefits from school supplies that make classroom days easier. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 2,
     },
     {
       firstName: 'Nora',
@@ -241,7 +234,6 @@ async function seedChildren(
       photo: media.child3,
       shortStory:
         'Sample profile: joins community gatherings and shared meals. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 3,
     },
     {
       firstName: 'Sam',
@@ -251,7 +243,6 @@ async function seedChildren(
       photo: media.child4,
       shortStory:
         'Sample profile: spends afternoons in safe play with attentive adults nearby. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 4,
     },
     {
       firstName: 'Ira',
@@ -261,7 +252,6 @@ async function seedChildren(
       photo: media.child5,
       shortStory:
         'Sample profile: practises homework with a helper after school. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 5,
     },
     {
       firstName: 'Ben',
@@ -271,7 +261,6 @@ async function seedChildren(
       photo: media.child6,
       shortStory:
         'Sample profile: enjoys outdoor games in a watched play space. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 6,
     },
     {
       firstName: 'Lina',
@@ -281,7 +270,6 @@ async function seedChildren(
       photo: media.child7,
       shortStory:
         'Sample profile: receives notebooks and tools for learning days. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 7,
     },
     {
       firstName: 'Omar',
@@ -291,7 +279,6 @@ async function seedChildren(
       photo: media.child8,
       shortStory:
         'Sample profile: helps set tables at community meals. This story describes program participation, not a personal biography of the person in the photo.',
-      sortOrder: 8,
     },
   ]
 
@@ -303,7 +290,6 @@ async function seedChildren(
       shortStory: child.shortStory,
       age: child.age,
       program: child.program,
-      sortOrder: child.sortOrder,
       photoConsent: true,
       acceptDonations: true,
       privateNotes: `${DEMO_SEED}: Demonstration sample profile. Not an identity claim about the person in the photograph. Staff should replace with real consented profiles before launch.`,
@@ -420,7 +406,6 @@ async function seedAlbums(
     {
       title: 'Learning days',
       slug: 'learning-days',
-      sortOrder: 1,
       photos: [
         { image: media.programEducation, caption: 'An afternoon education session.' },
         { image: media.programSupplies, caption: 'Learning materials ready for the week.' },
@@ -430,7 +415,6 @@ async function seedAlbums(
     {
       title: 'Community moments',
       slug: 'community-moments',
-      sortOrder: 2,
       photos: [
         { image: media.community1, caption: 'A community gathering.' },
         { image: media.community7, caption: 'Outdoor time with carers nearby.' },
@@ -440,12 +424,14 @@ async function seedAlbums(
   ]
 
   for (const album of albums) {
+    for (const photo of album.photos) {
+      await payload.update({ collection: 'media', id: photo.image, data: { caption: photo.caption } })
+    }
     const data = {
       title: album.title,
       slug: album.slug,
-      sortOrder: album.sortOrder,
       published: true,
-      photos: album.photos,
+      photos: album.photos.map((photo) => photo.image),
     }
     const existing = await findBySlug(payload, 'albums', album.slug)
     if (existing) {
@@ -467,19 +453,16 @@ async function seedTeam(payload: Payload, counts: Counts) {
       name: 'Mara Kovacs',
       role: 'Director',
       bio: 'Mara keeps Tree of Love’s programs connected and makes sure every afternoon has the people and places children need. Demonstration team profile.',
-      sortOrder: 1,
     },
     {
       name: 'Jonas Weber',
       role: 'Programs lead',
       bio: 'Jonas visits learning, supplies, community, and well-being sessions and writes the updates visitors see in the news. Demonstration team profile.',
-      sortOrder: 2,
     },
     {
       name: 'Elena Rossi',
       role: 'Partnerships',
       bio: 'Elena works with schools, neighbours, and donors who keep the work going month by month. Demonstration team profile.',
-      sortOrder: 3,
     },
   ]
 
@@ -495,7 +478,6 @@ async function seedTeam(payload: Payload, counts: Counts) {
       name: member.name,
       role: member.role,
       bio: member.bio,
-      sortOrder: member.sortOrder,
       published: true,
     }
     if (existing.docs[0]) {

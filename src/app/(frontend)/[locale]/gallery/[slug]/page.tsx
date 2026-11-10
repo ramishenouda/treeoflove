@@ -17,13 +17,13 @@ export async function generateMetadata({
   const locale = await requireLocale(Promise.resolve({ locale: raw }))
   const [settings, album] = await Promise.all([getSiteSettings(locale), getAlbum(slug, locale)])
   if (!album) return {}
-  const first = album.photos?.find((photo) => isMedia(photo.image))
+  const first = album.photos?.find(isMedia)
   return pageMetadata({
     title: titleFrom(null, album.title, settings.siteName),
     description: descriptionFrom(null, album.title),
     path: `/gallery/${album.slug}`,
     locale,
-    image: first && isMedia(first.image) ? first.image : null,
+    image: first ?? null,
   })
 }
 
@@ -37,7 +37,7 @@ export default async function AlbumPage({
   const dictionary = await getDictionary(locale)
   const album = await getAlbum(slug, locale)
   if (!album) notFound()
-  const photos = (album.photos ?? []).filter((photo) => isMedia(photo.image))
+  const photos = (album.photos ?? []).filter(isMedia)
 
   return (
     <main>
@@ -62,13 +62,12 @@ export default async function AlbumPage({
         {photos.length ? (
           <ul className="mt-12 columns-1 gap-6 sm:columns-2 lg:columns-3">
             {photos.map((photo) => {
-              if (!isMedia(photo.image)) return null
               return (
-                <li key={photo.id || photo.image.id} className="mb-6 break-inside-avoid">
+                <li key={photo.id} className="mb-6 break-inside-avoid">
                   <figure className="overflow-hidden rounded-3xl bg-white shadow-soft ring-1 ring-canopy-900/5">
                     <CmsImage
                       className="h-auto w-full object-cover"
-                      media={photo.image}
+                      media={photo}
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                     />
                     {photo.caption ? (

@@ -1,7 +1,9 @@
 import { slugField, type CollectionConfig } from 'payload'
 
-import { staffField, staffOnly, staffOrPublished } from '../access/staff'
+import { adminField, isAdmin, staffOnly, staffOrPublished } from '../access/staff'
+import { contentTab, draftVersions, updatedByField } from '../fields/shared'
 import { requirePhotoConsent } from '../hooks/requirePhotoConsent'
+import { previewUrl } from '../lib/preview'
 
 export const Children: CollectionConfig = {
   slug: 'children',
@@ -9,10 +11,13 @@ export const Children: CollectionConfig = {
     singular: 'Child',
     plural: 'Children',
   },
+  orderable: true,
   admin: {
     useAsTitle: 'firstName',
-    defaultColumns: ['firstName', 'program', 'photoConsent', 'acceptDonations', '_status'],
+    defaultColumns: ['firstName', 'photo', 'program', 'photoConsent', 'acceptDonations', '_status'],
+    listSearchableFields: ['firstName', 'slug'],
     group: 'People',
+    preview: (doc, { locale }) => previewUrl({ collection: 'children', slug: doc.slug, locale }),
   },
   access: {
     create: staffOnly,
@@ -20,57 +25,85 @@ export const Children: CollectionConfig = {
     update: staffOnly,
     delete: staffOnly,
   },
-  defaultSort: 'sortOrder',
-  versions: {
-    drafts: true,
-  },
+  versions: draftVersions,
   hooks: {
     beforeChange: [requirePhotoConsent],
   },
   fields: [
     {
-      name: 'firstName',
-      type: 'text',
-      required: true,
+      type: 'tabs',
+      tabs: [
+        contentTab('Profile', [
+          {
+            name: 'firstName',
+            type: 'text',
+            required: true,
+          },
+          {
+            name: 'photo',
+            type: 'upload',
+            relationTo: 'media',
+          },
+          {
+            name: 'shortStory',
+            label: 'Short story',
+            type: 'textarea',
+            localized: true,
+            admin: {
+              description:
+                'Shown on the public profile. Do not include a last name, address, school, or health details.',
+            },
+          },
+          {
+            type: 'row',
+            fields: [
+              {
+                name: 'age',
+                type: 'number',
+                min: 0,
+                max: 24,
+              },
+              {
+                name: 'program',
+                type: 'relationship',
+                relationTo: 'programs',
+                admin: {
+                  description: 'Optional. Lets visitors see the children in a program.',
+                },
+              },
+            ],
+          },
+        ]),
+        {
+          label: 'Private (admins)',
+          description: 'Only admins can see or change these. They are never shown on the website.',
+          admin: {
+            condition: (_data, _siblingData, { user }) => isAdmin(user),
+          },
+          fields: [
+            {
+              name: 'legalName',
+              type: 'text',
+              access: {
+                read: adminField,
+                create: adminField,
+                update: adminField,
+              },
+            },
+            {
+              name: 'privateNotes',
+              type: 'textarea',
+              access: {
+                read: adminField,
+                create: adminField,
+                update: adminField,
+              },
+            },
+          ],
+        },
+      ],
     },
     slugField({ useAsSlug: 'firstName' }),
-    {
-      name: 'photo',
-      type: 'upload',
-      relationTo: 'media',
-    },
-    {
-      name: 'shortStory',
-      label: 'Short story',
-      type: 'textarea',
-      localized: true,
-      admin: {
-        description: 'Shown on the public profile. Do not include a last name, address, school, or health details.',
-      },
-    },
-    {
-      name: 'age',
-      type: 'number',
-      min: 0,
-      max: 24,
-    },
-    {
-      name: 'program',
-      type: 'relationship',
-      relationTo: 'programs',
-      admin: {
-        description: 'Optional. Lets visitors see the children in a program.',
-      },
-    },
-    {
-      name: 'sortOrder',
-      type: 'number',
-      defaultValue: 0,
-      admin: {
-        position: 'sidebar',
-        description: 'Lower numbers appear first.',
-      },
-    },
     {
       name: 'photoConsent',
       type: 'checkbox',
@@ -89,34 +122,6 @@ export const Children: CollectionConfig = {
         description: 'Shows the donate button and includes this child in donate search.',
       },
     },
-    {
-      type: 'collapsible',
-      label: 'Staff only',
-      admin: {
-        description: 'Stored for staff. These fields are not returned by the public site.',
-      },
-      fields: [
-        {
-          name: 'legalName',
-          type: 'text',
-          access: {
-            read: staffField,
-          },
-          admin: {
-            description: 'Never shown on the website.',
-          },
-        },
-        {
-          name: 'privateNotes',
-          type: 'textarea',
-          access: {
-            read: staffField,
-          },
-          admin: {
-            description: 'Never shown on the website.',
-          },
-        },
-      ],
-    },
+    updatedByField,
   ],
 }

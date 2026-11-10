@@ -15,6 +15,14 @@ Next.js site with Payload CMS. Staff sign in at `/admin`.
 
 Browse tables in the browser at `http://localhost:8080` (Adminer — like phpMyAdmin for Postgres). System: **PostgreSQL**, Server: **postgres**, Username/Password: **postgres**, Database: **treeoflove**.
 
+## The admin
+
+- **Roles.** Staff accounts are either *Admin* or *Editor*. Editors manage content and the inbox. Only admins can see children's legal names and private notes, change site settings, and manage accounts. The first account is always an admin, and the last admin cannot be demoted or deleted. Without an email adapter, "Forgot password?" emails only go to the server log, so an admin sets new passwords under Settings → Staff accounts.
+- **Preview.** Programs, children, news, albums and the Home, About and Privacy pages have a Preview button and Live Preview. Drafts save automatically while you type, and the preview follows along. Nothing goes public until someone clicks Publish. Preview only works for signed-in staff (`/api/preview`).
+- **Order.** Drag rows in the Children, Programs, Team and Gallery lists to change the order on the website.
+- **Photos.** Each photo gets thumbnail, card and large sizes, plus a focal point that keeps faces in view when a photo is cropped. Captions belong to the photo and appear in gallery albums. Photos uploaded before sizes existed get them automatically the first time the production site starts; locally run `npm run media:regenerate`.
+- **Inbox.** Contact messages start as *New*. Mark them *Handled* and leave a staff note once someone has replied. The dashboard shows new messages, this month's donations, and anything waiting on consent or publishing.
+
 ## Donations and contact email
 
 Stripe Checkout takes one-time and monthly gifts in euros (card and SEPA). Set `STRIPE_SECRET_KEY` to the test secret key. Point Stripe webhooks at `/api/stripe/webhook` and set `STRIPE_WEBHOOK_SECRET`. Events used: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, and `invoice.paid`.

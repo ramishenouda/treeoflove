@@ -1,6 +1,35 @@
 import type { CollectionConfig } from 'payload'
 
 import { staffOnly, staffOrVisible } from '../access/staff'
+import { localeNotice, updatedByField } from '../fields/shared'
+
+const contentFields: CollectionConfig['fields'] = [
+  {
+    type: 'row',
+    fields: [
+      {
+        name: 'name',
+        type: 'text',
+        required: true,
+      },
+      {
+        name: 'role',
+        type: 'text',
+        localized: true,
+      },
+    ],
+  },
+  {
+    name: 'photo',
+    type: 'upload',
+    relationTo: 'media',
+  },
+  {
+    name: 'bio',
+    type: 'textarea',
+    localized: true,
+  },
+]
 
 export const Team: CollectionConfig = {
   slug: 'team',
@@ -8,10 +37,13 @@ export const Team: CollectionConfig = {
     singular: 'Team member',
     plural: 'Team',
   },
+  orderable: true,
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'role', 'published'],
+    defaultColumns: ['name', 'photo', 'role', 'published'],
+    listSearchableFields: ['name', 'role'],
     group: 'People',
+    description: 'Shown on the About page.',
   },
   access: {
     create: staffOnly,
@@ -19,44 +51,18 @@ export const Team: CollectionConfig = {
     update: staffOnly,
     delete: staffOnly,
   },
-  defaultSort: 'sortOrder',
   fields: [
-    {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'role',
-      type: 'text',
-      localized: true,
-    },
-    {
-      name: 'photo',
-      type: 'upload',
-      relationTo: 'media',
-    },
-    {
-      name: 'bio',
-      type: 'textarea',
-      localized: true,
-    },
-    {
-      name: 'sortOrder',
-      type: 'number',
-      defaultValue: 0,
-      admin: {
-        position: 'sidebar',
-        description: 'Lower numbers appear first.',
-      },
-    },
+    localeNotice(contentFields),
+    ...contentFields,
     {
       name: 'published',
       type: 'checkbox',
       defaultValue: true,
       admin: {
         position: 'sidebar',
+        description: 'Show this person on the About page.',
       },
     },
+    updatedByField,
   ],
 }

@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
+import { PreviewBar } from '@/components/preview-bar'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
-import { getSiteSettings } from '@/lib/cms'
+import { getSiteSettings, isPreview } from '@/lib/cms'
 import { getDictionary, isLocale, locales, type Locale } from '@/lib/i18n'
 import { siteUrl } from '@/lib/site'
 
@@ -45,7 +46,11 @@ export default async function LocaleLayout({
   const { locale: raw } = await params
   if (!isLocale(raw)) notFound()
   const locale: Locale = raw
-  const [settings, dictionary] = await Promise.all([getSiteSettings(locale), getDictionary(locale)])
+  const [settings, dictionary, preview] = await Promise.all([
+    getSiteSettings(locale),
+    getDictionary(locale),
+    isPreview(),
+  ])
 
   return (
     <html className={`${display.variable} ${body.variable}`} lang={locale}>
@@ -61,6 +66,7 @@ export default async function LocaleLayout({
           {children}
         </div>
         <SiteFooter dictionary={dictionary} locale={locale} settings={settings} />
+        {preview ? <PreviewBar serverURL={siteUrl()} /> : null}
       </body>
     </html>
   )
